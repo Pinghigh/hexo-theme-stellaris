@@ -1,9 +1,20 @@
 const CommentsScript = require('./plugins/comments/script.jsx');
 const MathJaxScripts = require('./plugins/mathjax/script.jsx');
 const generateStellarScript = props => {
-    const {theme, __, url_for} = props;
+    const {theme, __, url_for, page, post} = props
+    let outdateMonth = 0
+    if (theme.article?.outdated_check.enabled == true) {
+      if (post && ('outdate_month' in post)) {
+        outdateMonth = post.outdate_month
+      } else if (page && ('outdate_month' in page)) {
+        outdateMonth = page.outdate_month
+      } else {
+        outdateMonth = theme.article?.outdated_check?.month || 0
+      }
+    }
     return `
       stellar = {
+        root: '${url_for()}',
         // 懒加载 css https://github.com/filamentgroup/loadCSS
         loadCSS: (href, before, media, attributes) => {
           var doc = window.document;
@@ -137,25 +148,26 @@ const generateStellarScript = props => {
       }
       stellar.plugins.instant_click = Object.assign(${JSON.stringify(theme.plugins.instant_click)});
       stellar.article = {
-        outdate_month: ${theme.article.outdate_month}
+        outdate_month: ${outdateMonth}
       };
     `;
 }
 const ImportJS = props => {
-    const {theme} = props;
+    const {join} = require("path")
+    const {theme, url_for} = props
     if (theme.stellar.cdn_js) {
         return (
             <script src={theme.stellar.cdn_js} type="text/javascript" async={true} data-no-instant="true"/>
         )
     } else {
         return (
-            <script src='/js/main.js' type="text/javascript" async={true} data-no-instant="true"/>
+            <script src={join(url_for(), '/js/main.js')} type="text/javascript" async={true} data-no-instant="true"/>
         )
     }
 }
 const Scripts = props => {
-    const {theme, page} = props;
-    const {partial} = props;
+    const {join} = require("path")
+    const {theme, page, url_for} = props
     return (
         <div className="scripts">
             <script src={theme.plugins.instant_click.js} data-no-instant="true"/>
@@ -164,7 +176,7 @@ const Scripts = props => {
             </script>
             <script type="text/javascript" dangerouslySetInnerHTML={{__html: generateStellarScript(props)}}/>
             <ImportJS {...props}/>
-            <script type="text/javascript" src="/js/check_outdated_browser.js" data-no-instant="true"/>
+            <script type="text/javascript" src={join(url_for(), "/js/check_outdated_browser.js")} data-no-instant="true"/>
             <CommentsScript {...props}/>
             {(() => {
                  if (theme.plugins.mathjax.per_page === true || page.mathjax === true) return (<MathJaxScripts {...props}/>)
@@ -173,4 +185,4 @@ const Scripts = props => {
     )
 }
 
-module.exports = Scripts;
+module.exports = Scripts

@@ -1,11 +1,9 @@
 {
   "name": "hexo-theme-stellaris",
-  "version": "1.1.0",
+  "version": "1.4.8",
   "description": "Powerful, elegant and modern Hexo theme, forked from hexo-theme-stellar.",
   "main": "package.json",
-  "scripts": {
-    "test": "echo test"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/YidaozhanYa/hexo-theme-stellaris.git"
@@ -16,7 +14,7 @@
     "stellar",
     "stellaris"
   ],
-  "author": "[@YidaozhanYa](https://github.com/YidaozhanYa/)",
+  "author": "[@YidaozhanYa](https://github.com/YidaozhanYa)",
   "email": "ydz@yidaozhan.top",
   "license": "MIT",
   "bugs": {
@@ -24,9 +22,10 @@
   },
   "dependencies": {
     "hexo-renderer-jsx": "^1.0.1",
-    "hexo-renderer-stylus": "^2.1.0"
+    "hexo-renderer-stylus": "^3.0.0",
+    "node-fetch": "^2.7.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
-  "homepage": "https://blog.yidaozhan.top/",
-  "devDependencies": {
-  }
+  "homepage": "https://blog.yidaozhan.top/"
 }

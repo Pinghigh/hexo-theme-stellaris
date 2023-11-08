@@ -341,7 +341,7 @@ const initFancyBox = () => {
                         autoStart: false,
                     },
                     caption: function (fancybox, carousel, slide) {
-                        return slide.$trigger.alt || null
+                        return null
                     }
                 });
             })

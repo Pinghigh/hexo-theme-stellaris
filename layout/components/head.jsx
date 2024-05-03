@@ -243,7 +243,10 @@ module.exports = function Head(props) {
             <ImportCSS {...props} />
             <ImportHighlightJSTheme {...props} />
             <ImportKatex {...props} />
-            <script async src="https://analysis.tibrella.top/script.js" data-website-id="3b5f38a5-2ff5-47a3-8942-781ba0a344e6"></script>
+            <noscript>
+                <img src="https://shynet-production-5f84.up.railway.app/ingress/59f4bfb3-6043-4db3-a4ae-3daa0bbe1412/pixel.gif"/>
+            </noscript>
+            <script defer src="https://shynet-production-5f84.up.railway.app/ingress/59f4bfb3-6043-4db3-a4ae-3daa0bbe1412/script.js"></script>
         </head>
     );
 };

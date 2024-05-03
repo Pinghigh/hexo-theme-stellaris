@@ -17,6 +17,7 @@ $light-card = convert(hexo-config('style.color.light.card'))
 $light-title = convert(hexo-config('style.color.light.title'))
 $light-text = convert(hexo-config('style.color.light.text'))
 $light-code = convert(hexo-config('style.color.light.code'))
+$light-color-scheme = light
 
 // 深色
 $dark-background = convert(hexo-config('style.color.dark.background'))
@@ -28,23 +29,31 @@ $dark-card = convert(hexo-config('style.color.dark.card'))
 $dark-title = convert(hexo-config('style.color.dark.title'))
 $dark-text = convert(hexo-config('style.color.dark.text'))
 $dark-code = convert(hexo-config('style.color.dark.code'))
+$dark-color-scheme = dark
 
 // 移动端深色背景（OLED调成纯黑可以省电）
 $dark-background-mobile = convert(hexo-config('style.color.dark.background-mobile'))
 
 // 字体
-$font-face = convert(hexo-config('style.font_face'))
 if hexo-config('style.custom_font_css.enabled')
   $font-css = hexo-config('style.custom_font_css.css')
   @import($font-css)
 
-$ff-body = $font-face, sans-serif, sans
-$ff-code = monospace
+if hexo-config('style.font-family.body')
+  $ff-body = convert(hexo-config('style.font-family.body'))
 
-$ff-logo = $ff-body
+if hexo-config('style.font-family.code')
+  $ff-code = convert(hexo-config('style.font-family.code'))
+
+if hexo-config('style.font-family.codeblock')
+  $ff-codeblock = convert(hexo-config('style.font-family.codeblock'))
+
+if hexo-config('style.font-family.logo')
+  $ff-logo = convert(hexo-config('style.font-family.logo'))
+
 
 // font size
-$fs-root = convert(hexo-config('style.font-size'))
+$fs-root = convert(hexo-config('style.font-size.root'))
 $fs-15 = .9375rem
 $fs-14 = .875rem
 $fs-13 = .8125rem
@@ -56,8 +65,9 @@ $fs-h3   = 1.375rem  // 22px
 $fs-h4   = 1.125rem  // 18px
 $fs-h5   = $fs-15
 $fs-h6   = $fs-12
-$fs-p    = $fs-15
-$fs-code = $fs-13
+$fs-p    = convert(hexo-config('style.font-size.body'))
+$fs-code = convert(hexo-config('style.font-size.code'))
+$fs-codeblock = convert(hexo-config('style.font-size.codeblock'))
 
 $border-card = 8px
 $border-block = 8px
@@ -88,7 +98,8 @@ $border-image = 6px
 
 
 // shadow
-$boxshadow-card = 0 2px 3px 0px rgba(0, 0, 0, 0.1)
+$boxshadow-card = 0 1px 2px hsla(240, 3.8%, 46.1%, 10%)
+$boxshadow-card-hover = 0 2px 8px hsla(240, 3.8%, 46.1%, 12%)
 $boxshadow-float = 0 4px 8px 0px rgba(0, 0, 0, 0.1)
 $boxshadow-card-float = 0 2px 4px 0px rgba(0, 0, 0, 0.1), 0 4px 8px 0px rgba(0, 0, 0, 0.1), 0 8px 16px 0px rgba(0, 0, 0, 0.1)
 $boxshadow-button = 0 0 2px 0px rgba(0, 0, 0, 0.04), 0 0 8px 0px rgba(0, 0, 0, 0.04)

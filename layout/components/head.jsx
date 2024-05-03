@@ -7,7 +7,7 @@ const Title = (props) => {
     }
     if (page.wiki) {
         let title;
-        let proj = theme.wiki.projects[page.wiki];
+        let proj = theme.wiki.tree[page.wiki];
         let wiki = (proj && proj.name) || page.wiki;
         if (page.title) {
             title =
@@ -42,12 +42,12 @@ const Title = (props) => {
 };
 
 const Description = (props) => {
-    const { page, theme, config, truncate, strip_html } = props;
-    if (theme.open_graph && theme.open_graph.enable) {
+    const {page, theme, config, truncate, strip_html} = props;
+    if (theme.open_graph && theme.open_graph.enabled) {
         return <></>;
     }
-    if (page.layout === "wiki" && page.wiki) {
-        let proj = theme.wiki.projects[page.wiki];
+    if (page.layout === 'wiki' && page.wiki) {
+        let proj = theme.wiki.tree[page.wiki];
         if (proj && proj.description) {
             return <meta name="description" content={proj.description} />;
         }
@@ -83,16 +83,16 @@ const OpenGraph = (props) => {
     const openGraphArguments = (props) => {
         const { page, theme, config } = props;
         const args = {};
-        if (theme.open_graph.twitter_id) {
+        if (theme.head.open_graph.twitter_id) {
             args.twitter_id = theme.open_graph.twitter_id;
         }
         if (page.layout === "post" && page.cover) {
             args.twitter_card = "summary_large_image";
         }
         return args;
-    };
-    const { theme } = props;
-    if (theme.open_graph && theme.open_graph.enable) {
+    }
+    const {theme} = props;
+    if (theme.head.open_graph && theme.head.open_graph.enabled) {
         return (
             <Fragment>
                 <OpenGraphArguments {...props} {...openGraphArguments(props)} />
@@ -139,7 +139,7 @@ const Feed = (props) => {
 const ImportCSS = (props) => {
     const {theme, url_for} = props
     const {join} = require("path")
-    if (theme.stellar.cdn_css) {
+    if (theme.stellar && theme.stellar.cdn_css) {
         return <link rel="stylesheet" href={theme.stellar.cdn_css}/>
     } else {
         return <link rel="stylesheet" href={join(url_for(), "/css/main.css")}/>
@@ -162,77 +162,90 @@ const FavIcon = (props) => {
 };
 
 const ImportHighlightJSTheme = (props) => {
-    const { theme, config } = props;
-    if (
-        config.highlight &&
-        config.highlight.enable === true &&
-        config.highlight.hljs === true
-    ) {
-        return (
-            <link
-                rel="stylesheet"
-                href={theme.style.codeblock.highlightjs_theme}
-            />
-        );
+    const {theme, config} = props;
+    if (config.highlight && config.highlight.enabled === true && config.highlight.hljs === true) {
+        return <link rel="stylesheet" href={theme.style.codeblock.highlightjs_theme}/>;
     } else {
         return <></>;
     }
-};
-const ImportKatex = (props) => {
-    const { theme } = props;
-    if (theme.plugins.katex && theme.plugins.katex.enable) {
+}
+
+const ImportKatex = props => {
+    const {theme} = props
+    const parse = require('html-react-parser').default
+    if (theme.plugins.katex && theme.plugins.katex.enabled) {
         return (
             <>
-                {theme.plugins.katex.min_css}
-                {theme.plugins.katex.min_js}
-                {theme.plugins.katex.auto_render_min_js}
+                {parse(theme.plugins.katex.min_css)}
+                {parse(theme.plugins.katex.min_js)}
+                {parse(theme.plugins.katex.auto_render_min_js)}
             </>
         );
     } else {
         return <></>;
     }
-};
+}
+
+const Preconnect = props => {
+    const {prefetch_and_preconnect} = props.theme.plugins
+    if (prefetch_and_preconnect && prefetch_and_preconnect.length > 0 ) {
+        let preconnects = []
+        for (const preconnect of prefetch_and_preconnect) {
+            preconnects.push(
+                <link rel="dns-prefetch" href={preconnect} key={preconnect} />,
+                <link rel="preconnect" href={preconnect} crossOrigin="true" key={preconnect} />
+            )
+        }
+        return (<>
+            <meta httpEquiv='X-DNS-Prefetch-Control' content='on'/>
+            {preconnects}
+        </>)
+    } else {
+        return <></>
+    }
+}
+
+const InjectHead = props => {
+    const {theme} = props
+    let heads = []
+    if (theme.inject && theme.inject.head && theme.inject.head.length > 0) {
+        const parse = require('html-react-parser').default
+        let i = 0
+        for (const head of theme.inject.head) {
+            heads.push(
+                <Fragment key={String(i)}>{parse(head)}</Fragment>
+            )
+            i++
+        }
+    }
+    return <>
+        {heads}
+    </>
+}
+
 
 module.exports = function Head(props) {
     const { stellar_info, env } = props;
 
     return (
         <head>
-            <meta name="generator" content={`Hexo ${env.version}`} />
-            <meta name="hexo-theme" content={stellar_info("tree")} />
-            <meta charSet="utf-8" />
-            <Robots {...props} />
-
-            <meta httpEquiv="X-DNS-Prefetch-Control" content="on" />
-            <link rel="dns-prefetch" href="https://npm.elemecdn.com" />
-            <link
-                rel="preconnect"
-                href="https://npm.elemecdn.com"
-                crossOrigin="true"
-            />
-            <link rel="dns-prefetch" href="https://fastly.jsdelivr.net" />
-            <link
-                rel="preconnect"
-                href="https://fastly.jsdelivr.net"
-                crossOrigin="true"
-            />
-            <link rel="dns-prefetch" href="https://cdn.bootcdn.net" />
-            <link
-                rel="preconnect"
-                href="https://cdn.bootcdn.net"
-                crossOrigin="true"
-            />
-
-            <meta name="renderer" content="webkit" />
-            <meta name="force-rendering" content="webkit" />
-            <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-            <meta name="HandheldFriendly" content="true" />
-            <meta name="apple-mobile-web-app-capable" content="yes" />
-            <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1, maximum-scale=1"
-            />
-            <meta name="theme-color" content="#f8f8f8" />
+            <meta name="generator" content={`Hexo ${env.version}`}/>
+            <meta name='hexo-theme' content={stellar_info('tree')}/>
+            <meta charSet="utf-8"/>
+            <Robots {...props}/>
+            <Preconnect {...props} />
+            <meta name="renderer" content="webkit"/>
+            <meta name="force-rendering" content="webkit"/>
+            <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+            <meta name="HandheldFriendly" content="true"/>
+            <meta name="apple-mobile-web-app-capable" content="yes"/>
+            <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+            <meta name="theme-color" media="(prefers-color-scheme: light) and (max-width: 667px)" content="#eff4f9"/>
+            <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f8f8"/>
+            {/** Higher priority than `#1a1f35`. */}
+            <meta name="theme-color" media="(prefers-color-scheme: dark) and (max-width: 667px)" content="#000000"/>
+            <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#202020"/>
 
             <Title {...props} />
             <OpenGraph {...props} />
@@ -240,13 +253,11 @@ module.exports = function Head(props) {
             <Feed {...props} />
             <FavIcon {...props} />
 
-            <ImportCSS {...props} />
-            <ImportHighlightJSTheme {...props} />
-            <ImportKatex {...props} />
-            <noscript>
-                <img src="https://shynet-production-5f84.up.railway.app/ingress/59f4bfb3-6043-4db3-a4ae-3daa0bbe1412/pixel.gif"/>
-            </noscript>
-            <script defer src="https://shynet-production-5f84.up.railway.app/ingress/59f4bfb3-6043-4db3-a4ae-3daa0bbe1412/script.js"></script>
+            <ImportCSS {...props}/>
+            <ImportHighlightJSTheme {...props}/>
+            <ImportKatex {...props}/>
+
+            <InjectHead {...props} />
         </head>
     );
 };

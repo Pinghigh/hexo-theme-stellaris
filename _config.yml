@@ -1,18 +1,18 @@
 ######## hexo-theme-stellaris ########
 stellar:
-  version: '1.4.8'
-  homepage: 'https://blog.yidaozhan.top/'
-  repo: 'https://github.com/YidaozhanYa/hexo-theme-stellaris'
+  version: '2.0.0'
+  homepage: 'https://blog.chyk.ink/wiki/stellaris/'
+  repo: 'https://github.com/chiyuki0325/hexo-theme-stellaris'
   cdn_css:  # 如果你使用 CDN，可以上传 /css/main.css 并在此输入对应的链接
   cdn_js:  # 如果你使用 CDN，可以上传 /js/main.js 并在此输入对应的链接
 
 
 ######## 网页头部信息 ########
-open_graph:
-  # 启用 Open Graph 以在 Twitter 和 Telegram 等平台中获得更好的链接预览体验
-  enable: true
+head:
+  open_graph:
+    # 启用 Open Graph 以在 Twitter 和 Telegram 等平台中获得更好的链接预览体验
+    enabled: true
   twitter_id:
-
 
 ######## 侧边栏 ########
 sidebar:
@@ -33,7 +33,7 @@ sidebar:
   widgets:
     # 各个页面对应的侧边栏挂件
     # 挂件可在 source/_data/widgets.yml 中配置
-    # 可参考 https://github.com/YidaozhanYa/hexo-theme-stellaris/blob/main/_data/widgets.yml
+    # 可参考 https://github.com/chiyuki0325/hexo-theme-stellaris/blob/main/_data/widgets.yml
 
     ### 博客自动生成的导航页面和系统页面
     # 主页
@@ -75,11 +75,11 @@ article:
   # 文章许可协议
   license: '本文采用[署名-非商业性使用-相同方式共享 4.0 国际](https://creativecommons.org/licenses/by-nc-sa/4.0/)许可协议，转载请注明出处。'
   # 分享
-  share: # [wechat, weibo, email, link]
+  share: # [wechat, weibo, telegram, email, link]
   related_posts:
     # 相关文章，需要安装插件 (仅对博客文章 (layout: post) 可用)
     # pnpm i hexo-related-popular-posts
-    enable: false
+    enabled: false
     max_count: 5
   outdated_check:
     # 文章过期检查，在文章发布后多少个月提示文章可能过期
@@ -100,12 +100,15 @@ search:
 
 ######## 评论 ########
 comments:
-  # 支持 beaudar, utterances, valine (不推荐), waline 和 twikoo
+  # 支持 beaudar, utterances, giscus, valine (不推荐), waline, twikoo 和 artalk
   # Stellaris 的维护者只使用过 Valine 和 Waline
   # 故未对其它评论系统进行较好的适配
   # 如果你在使用其它评论系统时遇到功能或样式 bug，而该评论系统在原 Stellar 主题中正常工作
   # 请提交 issue 反馈
-  service: # beaudar, utterances, valine, twikoo, waline
+  service: # beaudar, utterances, giscus, valine, twikoo, waline, artalk
+
+  # 在 404 页是否显示评论区？
+  enabled_in_404: false
 
   ### beaudar
   # https://beaudar.lipk.org/
@@ -226,6 +229,15 @@ comments:
     # comment per page
     # pageSize: 10
 
+  # Artalk
+  # https://artalk.js.org/
+  artalk:
+    css: https://unpkg.com/artalk@2.4.3/dist/Artalk.css
+    js: https://unpkg.com/artalk@2.4.3/dist/Artalk.js
+    server: # 后端服务地址
+    placeholder: ''
+    darkMode: auto
+
 
 ######## 页脚 ########
 footer:
@@ -259,7 +271,7 @@ footer:
     #   - '[关于本站](/)'
     #   - '[GitHub](/)'
   license: '[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)'
-  # source: https://github.com/YidaozhanYa/blog  # 博客源码信息
+  # source: https://github.com/chiyuki0325/blog  # 博客源码信息
   # icp:  # ICP 备案信息
   # 主题用户越多，开发者维护和更新的积极性就越高，如果您喜欢本主题，请在适当的位置显示主题信息和仓库链接以表支持。
 
@@ -303,18 +315,51 @@ tag_plugins:
   mark:
     default_color: dark # light, dark, red, orange, yellow, green, cyan, blue, purple, warning, error
 
-  # {% tag %}
-  tag:
+  # {% hashtag %}
+  hashtag:
     default_color: yellow # red, orange, yellow, green, cyan, blue, purple
 
-  # {% bilicard %}
-  bilicard:
-    enable: true
-    image_proxy: "https://images.weserv.nl/?url="
+  # {% bvideo %}
+  bvideo:
+    enabled: true
+    # 此 API 可自行部署
+    # https://github.com/chiyuki0325/stellaris-api
+    # 部署后输入 https://你部署的 API/bilibili/?url=
+    image_proxy: "https://stellaris-api.chyk.ink/bilibili/?url="
+    # 部署后输入 https://你部署的 API/bvideo_info/
+    video_info: "https://stellaris-api.chyk.ink/bvideo_info/"
+
+  # {% okr o1 percent:0.5 status:normal %}
+  okr:
+    border: true # 是否显示边框
+    status: # 可以自行增加
+      # 进行中状态
+      in_track:
+        color: blue # red, orange, yellow, green, cyan, blue, purple
+        label: 正常
+      at_risk:
+        color: yellow
+        label: 风险
+      off_track:
+        color: orange
+        label: 延期
+      # 结果状态
+      finished:
+        color: green
+        label: 已完成
+      unfinished:
+        color: red
+        label: 未完成
+  # {% video %}
+  video:
+    js: https://fastly.jsdelivr.net/npm/artplayer@5.0.9/dist/artplayer.js
 
 
 ######## JS 插件 ########
 plugins:
+  ### 在头部信息中写入 dns-prefetch 和 preconnect 以加快加载
+  prefetch_and_preconnect: [ "https://fastly.jsdelivr.net", "https://cdn.bootcdn.net" ]
+
   ### 必须加载的核心 JS
   jquery: https://fastly.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js
   marked: https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js
@@ -326,25 +371,24 @@ plugins:
     sites: /js/plugins/sites.js
     friends: /js/plugins/friends.js
     ghinfo: /js/plugins/ghinfo.js
-    # Stellaris 维护者并不使用 timeline 插件
-    # 如在使用过程中遇到问题，请提出 issue 汇报。
     timeline: /js/plugins/timeline.js
     linkcard: /js/plugins/linkcard.js
     fcircle: /js/plugins/fcircle.js
+    bvideo: /js/plugins/bvideo.js
 
   ### 可选插件
 
   # 图片懒加载
   # https://www.npmjs.com/package/vanilla-lazyload
   lazyload:
-    enable: true  # [hexo clean && hexo s] is required after changing this value.
+    enabled: true  # [hexo clean && hexo s] is required after changing this value.
     js: https://fastly.jsdelivr.net/npm/vanilla-lazyload@17.3.1/dist/lazyload.min.js
     transition: blur # blur, fade
 
   # 页面滚动动画
   # https://scrollrevealjs.org/api/reveal.html
   scrollreveal:
-    enable: true
+    enabled: true
     js: https://fastly.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js
     distance: 8px
     duration: 500  # ms
@@ -355,31 +399,27 @@ plugins:
   # 注：**可能并不支持原生 Markdown 图片语法！**
   # https://fancyapps.com/docs/ui/fancybox/
   fancybox:
-    enable: true
+    enabled: true
     js: https://fastly.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js
     css: https://fastly.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css
     # 可以处理评论区的图片（不支持 iframe 类评论系统）例如：
     # 使用 valine 评论可以写: .vcontent img:not(.vemoji)
     # 使用 twikoo 评论可以写: .tk-content img:not([class*="emo"])
     # 使用 waline 评论可以写: #waline_container .vcontent img
-    selector: .swiper-slide img # 多个选择器用英文逗号隔开
-
+    selector: .swiper-slide img, .vcontent img:not(.vemoji), .tag-plugin.image img # 多个选择器用英文逗号隔开
 
   # swiper
   # https://swiperjs.com/
   swiper:
-    enable: true
+    enabled: true
     css: https://unpkg.com/swiper@11/swiper-bundle.min.css
     js: https://unpkg.com/swiper@11/swiper-bundle.min.js
-
-
-  ### 数学公式插件（可二选一）
 
   # 使用 MathJax 提供数学公式支持
   # 需在 Markdown 文件开头加入 mathjax: true
   # 推荐使用 Pandoc: npm uninstall hexo-renderer-marked --save & npm install hexo-renderer-pandoc --save
   mathjax:
-    enable: false
+    enabled: false
     per_page: false # 启用后无需在文章开头加 mathjax: true 即可启用
     cdn: https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML
 
@@ -388,18 +428,29 @@ plugins:
   # https://github.com/KaTeX/KaTeX
   # 使用 hexo-renderer-markdown-it-plus 作为公式渲染器：npm uninstall hexo-renderer-marked --save npm install hexo-renderer-markdown-it-plus --save
   katex:
-    enable: false
+    enabled: false
+    # 使用 HTML 语法
     min_css: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css" integrity="sha384-Xi8rHCmBmhbuyyhbI88391ZKP2dmfnOl4rT9ZfRI7mLTdk1wblIUnrIq35nqwEvC" crossorigin="anonymous">
     min_js: <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js" integrity="sha384-X/XCfMm41VSsqRNQgDerQczD69XqmjOOOwYQvr/uuC+j4OPoNhVgjdGFwhvN02Ja" crossorigin="anonymous"></script>
     auto_render_min_js: <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"onload="renderMathInElement(document.body);"></script>
 
+  # 代码块复制按钮
+  copycode:
+    enabled: true
+    js: /js/plugins/copycode.js
+    default_text: '复制'
+    success_text: '已复制'
 
 
 ######## 样式 ########
 style:
   darkmode: auto # auto / always / false
   smooth_scroll: true # true / false
-  font-size: 16px
+  font-size:
+    root: 16px
+    body: .9375rem  # 15px
+    code: 85%  # 14px
+    codeblock: 0.8125rem # 13px
   text-align: left
   color:
     common:
@@ -431,19 +482,44 @@ style:
   codeblock:
     scrollbar: 4px
     highlightjs_theme: https://fastly.jsdelivr.net/gh/highlightjs/cdn-release@11.5.0/build/styles/atom-one-dark.min.css
-  font_face: "HarmonyOS_Regular"
+  font-family:
+    logo: 'HarmonyOS_Regular, system-ui, -apple-system, sans-serif'
+    body: 'HarmonyOS_Regular, system-ui, -apple-system, sans-serif'
+    code: 'Menlo, Monaco, Consolas, system-ui, "Courier New", monospace, sans-serif'
+    codeblock: 'Menlo, Monaco, Consolas, system-ui, "Courier New", monospace, sans-serif'
   custom_font_css:
     # 自定义字体
     enabled: true
     css: "https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css"
 
+
+######## 缺省资源文件 ########
 default:
   avatar: https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.1/avatar/round/3442075.svg
   link: https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.1/link/8f277b4ee0ecd.svg
   cover: https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.1/cover/76b86c0226ffd.svg
   image: https://fastly.jsdelivr.net/gh/cdn-x/placeholder@1.0.1/image/2659360.svg
 
+
+######## API ########
 api_host:
   ghapi: https://api.github.com
   ghraw: https://www.githubs.cn/raw-githubusercontent
   gist: https://gist.github.com
+
+
+######## 自定义插件 ########
+inject:
+  # script:
+  #   # 使用 HTML 语法
+  #   - '<script src="https://example.com/my_script.js" data-no-instant="true"></script>'
+  #   # data-no-instant 为 InstantClick 属性，决定某脚本在页面切换时是否重新加载
+  #   # 如果此脚本只需要加载一次（比如添加全局对象），那么为 true
+  #   # 如果此脚本每页都需要重复加载（比如编辑页面元素或需要使用 window.onload），那么为 false
+  # head:
+  #   # 使用 HTML 语法
+  #   - '<meta name="key" content="value"></meta>'
+  #   - '<link rel="stylesheet" href="/css/1.css"></link>'
+  # 由于 Stylus 的特性，暂不支持 inject CSS
+  # 如果要使用自定义 CSS，请在 _source/css 下创建 css 文件
+  # 之后使用上文的 head 来引入

@@ -5,7 +5,7 @@ const Sidebar = props => {
     const {page, theme, is_home, is_category, is_tag, is_archive} = props;
     let proj;
     if (page.layout === 'wiki' && page.wiki) {
-        proj = theme.wiki.projects[page.wiki];
+        proj = theme.wiki.tree[page.wiki];
     }
 
     // 默认组件
@@ -13,8 +13,8 @@ const Sidebar = props => {
         if (page.layout === 'post' && page.content) {
             page.sidebar = theme.sidebar.widgets.post;
         } else if (page.layout === 'wiki' && page.content && page.wiki) {
-            let proj = theme.wiki.projects[page.wiki];
-            if (proj.sidebar) {
+            let proj = theme.wiki.tree[page.wiki]
+            if (proj?.sidebar) {
                 page.sidebar = proj.sidebar;
             } else {
                 page.sidebar = theme.sidebar.widgets.wiki;
@@ -68,7 +68,7 @@ const Sidebar = props => {
                             </a>
                             {(() => {
                                 let main = proj.name || proj.title || page.wiki || page.title;
-                                let url = proj.homepage.path;
+                                let url = proj.homepage?.path || proj.homepage || undefined
                                 let sub = proj.subtitle;
                                 return <HeaderTitle {...props} main={main} url={url} sub={sub}/>
                             })()}
@@ -116,6 +116,7 @@ const Sidebar = props => {
 
     const Footer = props => {
         const {page, theme, url_for} = props;
+        const parse = require('html-react-parser').default
         if (page.layout !== 'wiki' && theme.footer.social) {
             return (
                 <footer className="footer dis-select">
@@ -132,10 +133,10 @@ const Sidebar = props => {
                                        rel={itemIsUrl ?
                                            'external nofollow noopener noreferrer' :
                                            'noopener noreferrer'}
-                                       dangerouslySetInnerHTML={{__html: item.icon}}
                                        data-on-click={item.onclick || ''}
                                        key={id}
                                     >
+                                        {parse(item.icon)}
                                     </a>
                                 )
                             }

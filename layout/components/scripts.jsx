@@ -1,3 +1,4 @@
+const {Fragment} = require('react')
 const CommentsScript = require('./plugins/comments/script.jsx');
 const MathJaxScripts = require('./plugins/mathjax/script.jsx');
 const generateStellarScript = props => {
@@ -12,6 +13,39 @@ const generateStellarScript = props => {
         outdateMonth = theme.article?.outdated_check?.month || 0
       }
     }
+
+    const stellarPlugins = {
+      jQuery: url_for(theme.plugins.jquery || "https://fastly.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"),
+      stellar: theme.plugins.stellar,
+      marked: theme.plugins.marked,
+      instant_click: theme.plugins.instant_click
+    }
+
+    for (const plugin of ['lazyload', 'swiper', 'scrollreveal', 'fancybox', 'copycode']) {
+      if (theme.plugins[plugin].enabled) {
+        stellarPlugins[plugin] = theme.plugins[plugin]
+      }
+    }
+
+    const stellarTagPlugins = {}
+
+    for (const tagPlugin of ['bvideo']) {
+      if (theme.tag_plugins[tagPlugin].enabled) {
+        stellarTagPlugins[tagPlugin] = theme.tag_plugins[tagPlugin]
+      }
+    }
+
+    let stellarSearch = {}
+    if (theme.search.service) {
+      stellarSearch = {
+        service: theme.search.service,
+      }
+      if (stellarSearch.service == 'local_search') {
+        stellarSearch.js = theme.search.local_search.js
+        stellarSearch.path = theme.search.local_search.path
+      }
+    }
+
     return `
       stellar = {
         root: '${url_for()}',
@@ -96,15 +130,9 @@ const generateStellarScript = props => {
         }),
     
         // https://github.com/jerryc127/hexo-theme-butterfly
-        jQuery: (fn) => {
-          if (typeof jQuery === 'undefined') {
-            stellar.loadScript(stellar.plugins.jQuery).then(fn)
-          } else {
-            fn()
-          }
-        }
+        jQuery: fn => stellaris.jQuery(fn)
       };
-      stellar.github = 'https://github.com/YidaozhanYa/hexo-theme-stellaris';
+      stellar.github = 'https://github.com/chiyuki0325/hexo-theme-stellaris';
       stellar.config = {
         date_suffix: {
           just: '${__('meta.date_suffix.just')}',
@@ -115,56 +143,45 @@ const generateStellarScript = props => {
         },
       };
     
-      // required plugins (only load if needs)
-      stellar.plugins = {
-        jQuery: '${url_for(theme.plugins.jquery || "https://fastly.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js")}'
-      };
-    
-      if ('${theme.search.service}') {
-        stellar.search = {};
-        stellar.search.service = '${theme.search.service}';
-        if (stellar.search.service == 'local_search') {
-          stellar.search.js = '${theme.search.local_search.js}';
-          stellar.search.path = '${theme.search.local_search.path}';
-        }
-      }
-    
-      // stellar js
-      stellar.plugins.stellar = Object.assign(${JSON.stringify(theme.plugins.stellar)});
-    
-      stellar.plugins.marked = Object.assign(${JSON.stringify(theme.plugins.marked)});
-      // optional plugins
-      if ('${theme.plugins.lazyload.enable}' == 'true') {
-        stellar.plugins.lazyload = Object.assign(${JSON.stringify(theme.plugins.lazyload)});
-      }
-      if ('${theme.plugins.swiper.enable}' == 'true') {
-        stellar.plugins.swiper = Object.assign(${JSON.stringify(theme.plugins.swiper)});
-      }
-      if ('${theme.plugins.scrollreveal.enable}' == 'true') {
-        stellar.plugins.scrollreveal = Object.assign(${JSON.stringify(theme.plugins.scrollreveal)});
-      }
-      if ('${theme.plugins.fancybox.enable}' == 'true') {
-        stellar.plugins.fancybox = Object.assign(${JSON.stringify(theme.plugins.fancybox)});
-      }
-      stellar.plugins.instant_click = Object.assign(${JSON.stringify(theme.plugins.instant_click)});
+      stellar.plugins = Object.assign(${JSON.stringify(stellarPlugins)})
+      stellar.tag_plugins = Object.assign(${JSON.stringify(stellarTagPlugins)})
+      stellar.search = Object.assign(${JSON.stringify(stellarSearch)})
+
       stellar.article = {
         outdate_month: ${outdateMonth}
       };
     `;
 }
+
 const ImportJS = props => {
-    const {join} = require("path")
     const {theme, url_for} = props
-    if (theme.stellar.cdn_js) {
-        return (
-            <script src={theme.stellar.cdn_js} type="text/javascript" async={true} data-no-instant="true"/>
-        )
+    let stellarJsUrl
+    if (theme.stellar && theme.stellar.cdn_js) {
+        stellarJsUrl = theme.stellar.cdn_js
     } else {
-        return (
-            <script src={join(url_for(), '/js/main.js')} type="text/javascript" async={true} data-no-instant="true"/>
-        )
+        stellarJsUrl = require("path").join(url_for(), '/js/main.js')
     }
+    return <script src={stellarJsUrl} type="text/javascript" async={true} data-no-instant="true"/>
 }
+
+const InjectScripts = props => {
+    let scripts = []
+    const {theme} = props
+    if (theme.inject && theme.inject.script && theme.inject.script.length > 0) {
+        const parse = require('html-react-parser').default
+        let i = 0
+        for (const script of theme.inject.script) {
+            scripts.push(
+                <Fragment key={String(i)}>{parse(script)}</Fragment>
+            )
+            i++
+        }
+    }
+    return <>
+        {scripts}
+    </>
+}
+
 const Scripts = props => {
     const {join} = require("path")
     const {theme, page, url_for} = props
@@ -180,7 +197,9 @@ const Scripts = props => {
             <CommentsScript {...props}/>
             {(() => {
                  if (theme.plugins.mathjax.per_page === true || page.mathjax === true) return (<MathJaxScripts {...props}/>)
-             })()}
+            })()}
+
+            <InjectScripts {...props} />
         </div>
     )
 }

@@ -17,7 +17,7 @@ p>code:not([class]),li>code:not([class])
   background: var(--block)
   border: 1px solid var(--block-border)
   line-height: 1.5
-  font-family: $ff-code
+  font-family: $ff-codeblock
   box-sizing: border-box
   @media screen and (min-width: $device-mobile)
     min-width: 180px
@@ -107,6 +107,7 @@ table:not([class])
 .md-text .highlight
   border-radius: $border-block
   border: 1px solid var(--card-border)
+  box-shadow: $boxshadow-card
   background-color: var(--card)
   margin: 1rem 0.3rem
   .code
@@ -176,6 +177,8 @@ table:not([class])
     content: "Go"
   &.typescript .code:before,&.ts .code:before
     content: "TS"
+  &.matlab .code:before
+    content: "MATLAB"
 
 
 
